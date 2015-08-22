@@ -205,7 +205,9 @@ $(function() {
         google_keyword_string = google_keyword_string.replace(/&/ig, "");
         google_keyword_string = google_keyword_string.replace(/amp;/ig, "");        
 
-        window.open("https://www.google.com/search?hl=en&gl=us&tbm=nws&authuser=1&q=" +  google_keyword_string);
+// for demo purposes, we won't launch the extra window with google news
+
+//        window.open("https://www.google.com/search?hl=en&gl=us&tbm=nws&authuser=1&q=" +  google_keyword_string);
 
 	    	$("div#right_top_container").html(data); 
 
