@@ -1,0 +1,18 @@
+The cookie that is currently in my proxy.php: 
+-------------------------------------------------
+Cookie: 
+1432%5F0=E57E25DD8D0A3F041AED1172A4473B69; 
+GZIP=1; 
+mmcore.tst=0.478; 
+mmid=2017346849%7CAQAAAAqgcK3s3AsAAA%3D%3D; mmcore.pd=1639725045%7CAQAAAAoBQqBwrezcCx0RoEIBAL2yvfdgTdJIDXVzLmV0cmFkZS5jb20OAAAAvbK992BN0kgAAAAA/////wD//////////wANdXMuZXRyYWRlLmNvbQLcCwEAAAAAAAIAAAAAAP///////////////wAAAAAAAUU%3D; 
+mmcore.srv=cg6.usw; 
+s_cc=true; 
+s_ppv=26; 
+oda_uid=386242%3A%3A@@553b78bf9315fa054c5e2297; 
+oda_bsid=386242%3A%3A@@*; 
+oda_sid=386242%3A%3A@@553b78bffcbb01f5d14768e5; 
+oda_lv=386242%3A%3A@@1429960895712; 
+oda_cp=386242%3A%3A@@Quotes%7E%21@Snapshot%20-%20Equity%7E%21@1429960895712%7E%21@1; 
+s_fid=1B78A634002A44E1-0A2A2F01C2B51A25; 
+SC_pvp=www.etrade.wallst.com%3Av1%3Astocks%3Asnapshot%3Asnapshot.asp; 
+s_sq=etrglobal%2Cetrwsod%3D%2526pid%253Dwww.etrade.wallst.com%25253Av1%25253Astocks%25253Asnapshot%25253Asnapshot.asp%2526pidt%253D1%2526oid%253Dhttps%25253A%25252F%25252Fwww.etrade.wallst.com%25252Fv1%25252Fstocks%25252Fnews%25252Fsearch_results.asp%25253Fsymbol%25253DMSFT_1%2526oidt%253D1%2526ot%253DA%2526oi%253D1
