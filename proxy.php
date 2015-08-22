@@ -12,6 +12,15 @@ $google_keyword_string = $_GET['google_keyword_string'];
 
 fopen("cookies.txt", "w");
 
+/*
+ * Function: grabHTML - Get the contents of an html file, return it as an html string
+ *
+ * @param function_host_name - The host name (i.e. www.marketwatch.com)
+ * @param url - The full website (i.e. for Microsoft http://www.marketwatch.com/q?s=MSFT&ql=1)
+ *
+ * returns $marketWatchfinalReturn - The parsed html code for the page
+ */
+
 function grabHTML($function_host_name, $url)
 {
 
