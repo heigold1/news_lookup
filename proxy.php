@@ -118,100 +118,26 @@ if ($which_website == "marketwatch")
 }
 else if ($which_website == "yahoo")
 {
-  // first round of data, from normal finance.yahoo.com/q?s=msft&ql=1
+    // grab the news 
 
-  $url="http://$host_name/q?s=$symbol&ql=1"; 
-  $result = grabHTML($host_name, $url); 
-  $result = str_replace ('href="/', 'href="http://finance.yahoo.com/', $result);  
-  $html = str_get_html($result);  
-  $retOriginalPage = $html->find('#yfi_headlines'); 
+    $rss = simplexml_load_file("http://feeds.finance.yahoo.com/rss/2.0/headline?s=$symbol&region=US&lang=en-US");
+    $allNews = "<ul class='newsSide'>";
+    $i = 0;
+    foreach ($rss->channel->item as $feedItem) {
+        $i++;
+        $allNews .= "<li "; 
 
-  $full_company_name = $html->find('div#yfi_rt_quote_summary div div h2'); 
-  $returnCompanyName = $full_company_name[0]; 
-  $returnCompanyName = preg_replace('/h2/', 'h1', $returnCompanyName);              
+        if ($i % 2 == 1)
+        {
+          $allNews .=  "style='background-color: #FFFFFF; '"; 
+        };
+        
+        $allNews .=  " ><a href='$feedItem->link' title='$feedItem->title'> " . $feedItem->pubDate . " " . $feedItem->title . "</a></li>";
+    }
+    $allNews .=  "</ul>";
 
-  $google_keyword_string = $returnCompanyName; 
-  $yesterdays_close =  $html->find('div#yfi_quote_summary_data table tbody tr td'); 
+    echo $allNews; 
 
-  $returnYesterdaysClose = $yesterdays_close[0]; 
-
-  $returnYesterdaysClose = preg_replace('/<td class="(.*)">/', '<b>Prev. close</b> - $', $returnYesterdaysClose);  
-  $returnYesterdaysClose = preg_replace('/<\/td>/', ' - ', $returnYesterdaysClose);        
-
-  $preMarketYesterdaysClose = $html->find('div#yfi_rt_quote_summary div div span span'); 
-  $preMarketYesterdaysClose[1] = preg_replace('/<span id="(.*)">/', '<span> <b>PRE MKT prev. close (last)</b> - $', $preMarketYesterdaysClose[1]);
-
-  $tableDataArray = $html->find('.yfnc_tabledata1'); 
-  $avgVol3Months = $tableDataArray[10];
-  $avgVol3Months = preg_replace('/<td class="(.*)">/', '<font size="3" style="font-size: 12px; background-color:#CCFF99; color: black; display: inline-block;"><b>Avg Vol (3m)</b> - ', $avgVol3Months);  
-  $avgVol3Months = preg_replace('/<\/td>/', ' - ', $avgVol3Months);
-
-  $currentVolume = $tableDataArray[9];
-  $currentVolume = preg_replace('/<td class="(.*)">/', '<b>Current Vol</b> - ', $currentVolume);  
-  $currentVolume = preg_replace('/<\/td>/', ' - ', $currentVolume);
-
-  // grab the information from the company profile 
-
-  $url="http://finance.yahoo.com/q/pr?s=$symbol+Profile"; 
-  $result = grabHTML($host_name, $url); 
-  $result = str_replace ('href="/', 'href="http://finance.yahoo.com/', $result);  
-  $html = str_get_html($result); 
-  $retProfilePage = $html->find('.yfnc_modtitlew1');
-  $finalProfileInfo = str_replace('<a ', '<a target="_blank"', $retProfilePage[0]);    
-
-  $finalProfileInfo = str_replace('class="yfnc_modtitlew1"', 'valign="top"', $finalProfileInfo); 
-
-  $finalProfileInfo = preg_replace('/Phone:(.*)\d{4}<br>/', '', $finalProfileInfo);      
-  $finalProfileInfo = preg_replace('/<span class="yfi-module-title">Details<\/span>/', '', $finalProfileInfo);      
-  $finalProfileInfo = preg_replace('/<tr><td class="yfnc_tablehead1" width="50%">Index Membership:<\/td><td class="yfnc_tabledata1">N\/A<\/td><\/tr>/', '', $finalProfileInfo);
-  $finalProfileInfo = preg_replace('/<tr><th align="left"><span class="yfi-module-title">Business Summary<\/span><\/th><th align="right">&nbsp;<\/th><\/tr>/', '', $finalProfileInfo); 
-
-  $finalProfileInfo = preg_replace('/<tr><td class="yfnc_tablehead1" width="50%">Full Time Employees:(.*?)<\/td><\/tr>/', '', $finalProfileInfo); 
-
-  // this will parse the company address from the $retProfilePage string
-
-  preg_match('/<td width=\"270" class="yfnc_modtitlew1">(.*)Details/', $finalProfileInfo, $matches); 
-      
-  $companyAddress =  $matches[0];      
- 
-  $finalReturn = str_replace('<a ', '<a target="_blank" ', $retOriginalPage[0]);       
-
-  $finalReturn = preg_replace($patterns = array("/<img[^>]+\>/i", "/<embed.+?<\/embed>/im", "/<iframe.+?<\/iframe>/im", "/<script.+?<\/script>/im"), $replace = array("", "", "", ""), $finalReturn);
-
-
-  // Keep track of news keywords, highlight the appropriate ones 
-
-  $finalReturn = preg_replace('/Headlines/', '<b>Yahoo Headlines</b>', $finalReturn);
-  $finalReturn = preg_replace('/<cite>/', '<cite> - ', $finalReturn);              
-  $finalReturn = preg_replace('/<span>/', '<span style="font-size: 12px; background-color:black; color:white"><b> ', $finalReturn); 
-  $finalReturn = preg_replace('/<\/span>/', '</b></span>', $finalReturn); 
-  $finalReturn = preg_replace('/ delisted|delisted /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;DELISTED - if doing a split, 25-30%&nbsp;</b></span>', $finalReturn);
-  $finalReturn = preg_replace('/ delisting|delisting /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;DELISTING - if doing a split, 25-30%&nbsp;</b></span>', $finalReturn);      
-  $finalReturn = preg_replace('/ chapter 11|chapter 11 /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;CHAPTER 11</b></span>', $finalReturn);
-  $finalReturn = preg_replace('/ reverse split|reverse split /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;REVERSE SPLIT</b></span>', $finalReturn);
-  $finalReturn = preg_replace('/ reverse stock split|reverse stock split /i', '<div style="font-size: 12px; background-color:red; display: inline-block;">REVERSE STOCK SPLIT</div>', $finalReturn);
-  $finalReturn = preg_replace('/ downgrade|downgrade /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;DOWNGRADE</b></span>', $finalReturn);      
-  $finalReturn = preg_replace('/ ex-dividend|ex-dividend /i', '<div style="font-size: 12px; background-color:red; display: inline-block;">EX-DIVIDEND (chase at 25%)</div>', $finalReturn);
-  $finalReturn = preg_replace('/ sales miss|sales miss /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;SALES MISS (Chase at 65-70%)</b>&nbsp;</span>', $finalReturn);      
-  $finalReturn = preg_replace('/ miss sales|miss sales /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;MISS SALES (Chase at 65-70%)</b>&nbsp;</span>', $finalReturn);
-  $finalReturn = preg_replace('/ disappointing sales|disappointing sales /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;DISAPPOINTINT SALES (Chase at 65-70%)</b>&nbsp;</span>', $finalReturn);      
-  $finalReturn = preg_replace('/ sales results|sales results /i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;SALES RESULTS (If bad, chase at 65-70%)</b>&nbsp;</span>', $finalReturn);      
-  $finalReturn = preg_replace('/ 8-k/i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;8-K (if it involves litigation, then back off)</b>&nbsp;</span>', $finalReturn);
-  $finalReturn = preg_replace('/ accountant/i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;accountant (if hiring new accountant, 35-40%)</b>&nbsp;</span>', $finalReturn);            
-  $finalReturn = preg_replace('/ clinical trial/i', '<span style="font-size: 12px; background-color:red; color:black"><b> &nbsp;clinical trial</b>&nbsp;</span>', $finalReturn);            
-
-  $message_board = '</font><a target="_blank" href="http://finance.yahoo.com/mb/' . $symbol . '/"> Yahoo Message Boards</a>&nbsp;&nbsp;&nbsp;&nbsp;'; 
-  $company_profile = '<a target="_blank" href="http://finance.yahoo.com/q/pr?s=' . $symbol . '+Profile">Yahoo Company Profile for ' . $symbol . '</a><br>'; 
-  $yahoo_main_page = '<a target="_blank" href="http://finance.yahoo.com/q?s=' . $symbol . '&ql=1">Yahoo Main Page for ' . $symbol . '</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-  $yahoo_5_day_chart = '<a target="_blank" href="http://finance.yahoo.com/echarts?s=' . $symbol . '+Interactive#symbol=' . $symbol . ';range=5d">5-day Chart for ' . $symbol . '</a><br><br>';
-  $eTrade = '<a target="_blank" href="https://www.etrade.wallst.com/v1/stocks/news/search_results.asp?symbol=' . $symbol . '">E*TRADE news for ' . $symbol . '</a>';
-  $google = '<a target="_blank" href="https://www.google.com/search?hl=en&gl=us&tbm=nws&authuser=1&q=' . $google_keyword_string . '">Google news for ' . $symbol . '</a><br>'; 
-
-  $finalReturn = $returnCompanyName . $returnYesterdaysClose . $preMarketYesterdaysClose[1] . "<br>" . "<div style='display: inline-block;'>" . $currentVolume . $avgVol3Months . $message_board . $yahoo_main_page . $eTrade . '<table width="600px"><tr width="600px"><td valign="top" >' . $finalReturn . '</td><td valign="top">' . $finalProfileInfo . '</td></tr></table>'; 
-
-  echo $finalReturn; 
-
-//        JSON string 
 
 } // if ($which_website == "yahoo")
 else if ($which_website == "bigcharts")
